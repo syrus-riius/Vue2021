@@ -1,15 +1,31 @@
 <template>
+  <transition name="fade">
+    <Modal
+      @closeModal="modalClose()"
+      :selected="selected"
+      :modalStatus="modalStatus"
+      :data="data"
+      :modalClose="modalClose"
+    />
+  </transition>
   <div class="menu">
     <a v-for="nav in navs" :key="nav">{{ nav }}</a>
   </div>
-  <Modal
-    :selected="selected"
-    :modalStatus="modalStatus"
-    :data="data"
-    :modalClose="modalClose"
-  />
+
   <Discount />
-  <Card :data="data" v-for="(data, i) in data" :key="i" />
+
+  <button @click="priceSort">가격 순 정렬</button>
+  <button @click="sortBack">원래대로</button>
+
+  <Card
+    @openModal="
+      modalOn();
+      selected = $event;
+    "
+    :data="data"
+    v-for="(data, i) in data"
+    :key="i"
+  />
 </template>
 
 <script>
@@ -25,6 +41,7 @@ export default {
       selected: 0,
       modalStatus: false,
       navs: ["Home", "Products", "About"],
+      originData: [...data],
       data: data,
     };
   },
@@ -39,6 +56,14 @@ export default {
     modalClose() {
       this.modalStatus = false;
     },
+    priceSort() {
+      this.data.sort(function (a, b) {
+        return a.price - b.price;
+      });
+    },
+    sortBack() {
+      this.data = [...this.originData];
+    },
   },
   components: {
     Discount,
@@ -49,6 +74,35 @@ export default {
 </script>
 
 <style>
+.fade-enter-from {
+  opacity: 0;
+}
+.fade-enter-active {
+  transition: all 1s;
+}
+.fade-enter-to {
+  opacity: 1;
+}
+
+.fade-leave-from {
+  opacity: 1;
+}
+.fade-leave-active {
+  transition: all 0.5s;
+}
+.fade-leave-to {
+  opacity: 0;
+}
+
+.start {
+  opacity: 0;
+  transition: all 1s;
+}
+
+.end {
+  opacity: 1;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
